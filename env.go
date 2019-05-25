@@ -35,6 +35,10 @@ func Decode(v interface{}) error {
 		ftype := vtype.Field(i)
 
 		if fval.Kind() == reflect.Ptr { // *struct
+			if !fval.CanSet() {
+				continue
+			}
+
 			if fval.IsNil() {
 				// struct, then fval becomes *struct
 				val := reflect.New(fval.Type().Elem())
