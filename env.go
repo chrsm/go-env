@@ -34,6 +34,12 @@ func Decode(v interface{}) error {
 		fval := value.Field(i)
 		ftype := vtype.Field(i)
 
+		// get the tagged OS env var name.
+		tag, ok := ftype.Tag.Lookup("env")
+		if !ok || !fval.CanSet() { // skip
+			continue
+		}
+
 		if fval.Kind() == reflect.Ptr { // *struct
 			if !fval.CanSet() {
 				continue
@@ -56,12 +62,6 @@ func Decode(v interface{}) error {
 			if err := Decode(fval.Addr().Interface()); err != nil {
 				return err
 			}
-		}
-
-		// get the tagged OS env var name.
-		tag, ok := ftype.Tag.Lookup("env")
-		if !ok { // skip
-			continue
 		}
 
 		str := os.Getenv(strings.ToUpper(tag))
